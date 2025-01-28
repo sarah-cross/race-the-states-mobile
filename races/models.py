@@ -57,11 +57,12 @@ class RaceImage(models.Model):
         return f"Image for {self.race.name}"
 
 
-
-
-
 @receiver(post_save, sender=User)
 def create_or_update_user_profile(sender, instance, created, **kwargs):
     if created:
         Profile.objects.create(user=instance)  # Create a Profile for new Users
-    instance.profile.save()  # Save Profile for existing Users
+    else:
+        # Explicitly update Profile fields if needed
+        profile = instance.profile
+        profile.save()  # Save any updates to the Profile
+

@@ -25,7 +25,12 @@ SECRET_KEY = 'django-insecure-t5o74)9)!im_p^sehte757d$5tct_$w$rl-n%_xn@jjb0kl%c!
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '127.0.0.1', 
+    'localhost', 
+    '10.0.0.81',  # My computer's local IP
+]
+
 
 
 # Application definition
@@ -146,6 +151,8 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ),
 }
+
+DEFAULT_FROM_EMAIL = 'racethestatesapp@gmail.com'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
