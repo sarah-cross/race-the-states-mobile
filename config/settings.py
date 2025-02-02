@@ -11,6 +11,23 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+
+
+
+# Load environment variables
+load_dotenv()
+
+# Read Google Client ID from .env
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
+GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
+
+# Read Facebook Client ID from .env
+FACEBOOK_APP_ID = os.getenv("FACEBOOK_APP_ID")
+FACEBOOK_APP_SECRET = os.getenv("FACEBOOK_APP_SECRET")
+
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -29,6 +46,7 @@ ALLOWED_HOSTS = [
     '127.0.0.1', 
     'localhost', 
     '10.0.0.81',  # My computer's local IP
+    '6324-2601-601-0-6ba0-8974-cf9e-bd50-a43e.ngrok-free.app',
 ]
 
 
@@ -43,8 +61,15 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',  # Django REST Framework
+    'rest_framework.authtoken',
     'corsheaders',     # CORS support
     'races',
+    'django.contrib.sites',  # Required for django-allauth
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',  # Google login
+    'allauth.socialaccount.providers.facebook',  # Facebook login
 ]
 
 MIDDLEWARE = [
@@ -57,6 +82,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'allauth.account.middleware.AccountMiddleware'
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -160,5 +186,64 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'racethestatesapp@gmail.com'  
 EMAIL_HOST_PASSWORD = 'nvvz uonl qpdz qlnd'  
+
+
+
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',  # Default
+    'allauth.account.auth_backends.AuthenticationBackend',  # Required for allauth
+)
+
+
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': ['profile', 'email'],
+        'AUTH_PARAMS': {'access_type': 'online'},
+    },
+    'facebook': {
+        'METHOD': 'oauth2',
+        'APP': {
+            'client_id': FACEBOOK_APP_ID,
+            'secret': FACEBOOK_APP_SECRET,
+            'key': ''
+        },
+        'SCOPE': ['email', 'public_profile'],
+        'FIELDS': ['id', 'email', 'name', 'first_name', 'last_name'],
+        'AUTH_PARAMS': {'auth_type': 'reauthenticate'},
+        'VERIFIED_EMAIL': False,
+    }
+}
+
+
+SITE_ID = 2
+
+# Add this setting to prioritize social logins over email/password
+ACCOUNT_ADAPTER = 'allauth.account.adapter.DefaultAccountAdapter'
+SOCIALACCOUNT_ADAPTER = 'allauth.socialaccount.adapter.DefaultSocialAccountAdapter'
+
+# Allow users to sign up using Google and prevent default signup form from being required
+ACCOUNT_SIGNUP_REDIRECT_URL = "/api/dashboard"
+ACCOUNT_LOGOUT_REDIRECT_URL = "/"
+ACCOUNT_EMAIL_REQUIRED = True  # Keep this to True if you want users to provide an email
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_AUTHENTICATION_METHOD = "email"
+ACCOUNT_EMAIL_VERIFICATION = "optional"
+
+# OAuth credentials 
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = GOOGLE_CLIENT_ID
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = GOOGLE_CLIENT_SECRET
+
+
+# Redirect URI from Google Console
+LOGIN_REDIRECT_URL = "/api/dashboard"  
+LOGOUT_REDIRECT_URL = "/api/login"
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://127.0.0.1:8000",
+    "http://localhost:8000",
+]
+
+
 
 

@@ -13,5 +13,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),  # Use custom view
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('api/', include('races.urls')),  # Include your app-level URLs here
+    path('api/', include('races.urls')),  # Include your app-level URLs 
+    path('accounts/', include('allauth.urls')),  # Allauth endpoints
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
