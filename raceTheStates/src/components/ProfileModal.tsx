@@ -1,20 +1,37 @@
 import React from "react";
-import { Modal, View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { Modal, View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import { useUser } from "../context/UserContext";
-import { MaterialIcons } from "@expo/vector-icons"; // For arrow icon
 
 interface ProfileModalProps {
   visible: boolean;
   onClose: () => void;
   onLogout: () => void;
   onNavigateAbout: () => void;
+  onNavigateReset: () => void;
 }
 
-const ProfileModal: React.FC<ProfileModalProps> = ({ visible, onClose, onLogout, onNavigateAbout }) => {
-  const { user } = useUser();
+const ProfileModal: React.FC<ProfileModalProps> = ({ visible, onClose, onNavigateAbout, onNavigateReset }) => {
+  const { user, logout } = useUser();
 
-
+  const handleLogout = () => {
+    Alert.alert(
+      "Log Out",
+      "Are you sure you want to log out?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Log Out",
+          onPress: () => {
+            logout(); // Call logout function from context
+            onClose(); // Close modal after logout
+          },
+          style: "destructive",
+        },
+      ],
+      { cancelable: true }
+    );
+  };
 
   return (
     <Modal animationType="slide" transparent={true} visible={visible} onRequestClose={onClose}>
@@ -34,22 +51,22 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ visible, onClose, onLogout,
             </View>
           </View>
 
-          {/* About Section (with Arrow) */}
+          {/* About Section */}
           <TouchableOpacity style={styles.sectionContainer} onPress={onNavigateAbout}>
             <Text style={styles.aboutText}>About</Text>
             <FontAwesome name="chevron-right" size={24} color="#AAAAAA" />
           </TouchableOpacity>
 
-          {/* About Section (with Arrow) */}
-          <TouchableOpacity style={styles.sectionContainer} onPress={onNavigateAbout}>
+          {/* Reset Password Section */}
+          <TouchableOpacity style={styles.sectionContainer} onPress={onNavigateReset}>
             <Text style={styles.aboutText}>Reset Password</Text>
             <FontAwesome name="chevron-right" size={24} color="#AAAAAA" />
           </TouchableOpacity>
 
           {/* Logout Button */}
-          <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>Log Out</Text>
-        </TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={handleLogout}>
+            <Text style={styles.buttonText}>Log Out</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </Modal>
@@ -64,7 +81,7 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     width: "100%",
-    height: "80%",
+    height: "90%",
     backgroundColor: "#222222",
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
@@ -74,7 +91,7 @@ const styles = StyleSheet.create({
     alignSelf: "flex-end",
   },
   doneText: {
-    color: "#01C7FE",
+    color: "#FFBA24",
     fontSize: 18,
     fontWeight: "bold",
   },
@@ -98,6 +115,7 @@ const styles = StyleSheet.create({
   profileEmail: {
     fontSize: 14,
     color: "#AAAAAA",
+    marginTop: 4,
   },
   sectionContainer: {
     flexDirection: "row",
@@ -108,46 +126,26 @@ const styles = StyleSheet.create({
     padding: 15,
     marginBottom: 10,
   },
-  label: {
-    fontSize: 14,
-    color: "#AAAAAA",
-  },
-  info: {
-    fontSize: 16,
-    color: "#FFFFFF",
-  },
   aboutText: {
     fontSize: 16,
     color: "#FFFFFF",
   },
-  logoutContainer: {
-    marginTop: 20,
-    alignItems: "center",
-  },
-  logoutText: {
-    fontSize: 18,
-    color: "#01C7FE",
-    fontWeight: "bold",
-  },
   button: {
-    width: '100%', // Set width to a percentage for responsiveness
+    width: '100%',
     height: 50,
-    backgroundColor: '#01C7FE', // Blue login button
+    backgroundColor: '#FFBA24',
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,
-    alignSelf: 'center', // Centers the button horizontally
+    alignSelf: 'center',
     marginTop: 20,
   },
   buttonText: {
-    color: '#FFFFFF', // White button text
+    color: '#FFFFFF',
     fontSize: 18,
     fontWeight: 'bold',
   },
 });
 
 export default ProfileModal;
-
-
-

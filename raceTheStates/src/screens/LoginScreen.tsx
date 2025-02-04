@@ -35,7 +35,7 @@ const LoginScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
     });
   }, []);
 
-  /** ✅ FIXED Email Login */
+  /* Email Login */
   const handleLogin = async () => {
     try {
       const { access } = await loginUser(email, password);
@@ -49,17 +49,19 @@ const LoginScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
       });
 
       console.log("🎉 Email login successful!");
-      navigation.reset({
+      /*navigation.reset({
         index: 0,
         routes: [{ name: "MainApp" }],
-      });
+      }); */
+      navigation.replace("MainApp");
+
     } catch (error) {
       console.error("❌ Email login failed:", error);
       Alert.alert("Error", "Unable to login. Please try again.");
     }
   };
 
-  /** ✅ FIXED Facebook Login */
+  /* Facebook Login */
   const handleFacebookLogin = async () => {
     try {
       console.log("🔹 Facebook login process started...");
@@ -98,10 +100,12 @@ const LoginScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
         });
 
         console.log("🎉 Facebook login successful!");
-        navigation.reset({
+        /*navigation.reset({
           index: 0,
           routes: [{ name: "MainApp" }],
-        });
+        }); */
+        navigation.replace("MainApp");
+
       } else {
         console.error("❌ Facebook login failed:", json);
         Alert.alert("Error", "Facebook login failed. Please try again.");
@@ -112,7 +116,7 @@ const LoginScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
     }
   };
 
-  /** ✅ FIXED Google Login */
+  /* Google Login */
   const handleGoogleLogin = async () => {
     try {
       await GoogleSignin.hasPlayServices();
@@ -143,10 +147,12 @@ const LoginScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
       });
 
       console.log("🎉 Google login successful!");
-      navigation.reset({
+      /*navigation.reset({
         index: 0,
         routes: [{ name: "MainApp" }],
-      });
+      }); */
+      navigation.replace("MainApp");
+
     } catch (error) {
       console.error("❌ Google login error:", error);
       Alert.alert("Google Login Failed", error instanceof Error ? error.message : "An unknown error occurred.");

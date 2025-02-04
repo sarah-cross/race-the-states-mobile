@@ -4,7 +4,7 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import LinearGradient from 'react-native-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from "@react-navigation/stack";
-import { RootStackParamList } from "../App";
+import { RootStackParamList } from "../../App";
 import { FlatList } from 'react-native';
 
 import USMap from '../components/USMap';
@@ -36,12 +36,25 @@ const totalStatesByRegion: Record<string, number> = {
 
 
 const Dashboard: React.FC = () => {
-  const navigation = useNavigation();
+  type NavigationProp = StackNavigationProp<RootStackParamList, "Dashboard">;
+  const navigation = useNavigation<NavigationProp>();  
   const [loading, setLoading] = useState(true);
   const [timelineData, setTimelineData] = useState<any[]>([]);
   const { user } = useUser();
-  const [isProfileVisible, setProfileVisible] = useState(false);
-  const [returnToProfile, setReturnToProfile] = useState(false);
+
+  const [isProfileModalVisible, setProfileModalVisible] = useState(false);
+  const { logout } = useUser();
+
+  const handleLogout = () => {
+    logout(); // Clear user session
+    setProfileModalVisible(false); // Close modal after logout
+
+    // Navigate to Login after logout
+    navigation.reset({
+      index: 0,
+      routes: [{ name: "Login" }],
+    });
+  };
 
   const [dashboardData, setDashboardData] = useState<{
     personal_record: {
@@ -81,7 +94,11 @@ const Dashboard: React.FC = () => {
           headers: { Authorization: authHeader },
         });
 
-        if (!response.ok) return;
+        if (!response.ok) {
+          console.error("❌ API error:", response.status, response.statusText);
+          return;
+        }
+        
 
         const data = await response.json();
 
@@ -132,10 +149,19 @@ const Dashboard: React.FC = () => {
       {/* ✅ Header */}
       <View style={styles.header}>
         <Text style={styles.headerText}>Race the States</Text>
-        <TouchableOpacity onPress={() => setProfileVisible(true)}>
+        <TouchableOpacity onPress={() => setProfileModalVisible(true)}>
           <FontAwesome name="user-circle" size={24} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
+
+
+      <ProfileModal
+        visible={isProfileModalVisible}
+        onClose={() => setProfileModalVisible(false)}
+        onLogout={handleLogout}
+        onNavigateAbout={() => navigation.navigate("About")}
+        onNavigateReset={() => navigation.navigate("About")}
+      />
   
       {/* ✅ Main Content */}
       <View style={{ flex: 1 }}>
@@ -215,26 +241,6 @@ const Dashboard: React.FC = () => {
           renderItem={null} // Timeline handled in ListHeaderComponent
         />
       </View>
-  
-
-
-{isProfileVisible && (
-  <ProfileModal 
-          visible={isProfileVisible}
-          onClose={() => setProfileVisible(false)} onLogout={function (): void {
-            throw new Error('Function not implemented.');
-          } } onNavigateAbout={function (): void {
-            throw new Error('Function not implemented.');
-          } }    /*onNavigateToAbout={() => {
-      setProfileVisible(false); // Close Profile Modal
-      setReturnToProfile(true); // Set flag to reopen modal when returning
-      //navigation.navigate("About");
-    }} */
-  />
-)}
-
-
-  
     </LinearGradient>
   );
   
@@ -305,6 +311,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#FFFFFF',
     textAlign: 'center',
+    fontFamily: 'Permanent Marker',
   },
   
   sectionContainer: {
@@ -347,6 +354,7 @@ const styles = StyleSheet.create({
     marginTop: 5,
     color: '#FFFFFF',
     fontWeight: 'bold',
+    fontSize: 14,
   },
   prSectionContainer: {
     backgroundColor: '#000000',

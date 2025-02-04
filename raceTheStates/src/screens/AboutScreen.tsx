@@ -1,20 +1,31 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import { RootStackParamList } from '../../App';
+import { StackNavigationProp } from "@react-navigation/stack";
 
+import FontAwesome from "react-native-vector-icons/FontAwesome";
+
+// ✅ Define navigation type explicitly
+type AboutScreenNavigationProp = StackNavigationProp<RootStackParamList, "About">;
 const AboutScreen: React.FC = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<AboutScreenNavigationProp>();
 
   return (
     <View style={styles.container}>
       {/* Header with Back Button */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity onPress={() => {
+          if (navigation.canGoBack()) {
+            navigation.goBack();
+          } else {
+            navigation.navigate("Dashboard"); // Fallback
+          }
+        }}>
           <FontAwesome name="arrow-left" size={24} color="white" />
         </TouchableOpacity>
         <Text style={styles.headerText}>About</Text>
-        <View style={{ width: 24 }} /> {/* Spacer to balance the layout */}
+        <View style={{ width: 24 }} /> {/* Spacer for layout balance */}
       </View>
 
       {/* About Content */}
@@ -34,6 +45,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#222222",
     padding: 20,
+    height: "90%"
   },
   header: {
     flexDirection: "row",
