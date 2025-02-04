@@ -51,7 +51,7 @@ const LoginScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
       console.log("🎉 Email login successful!");
       navigation.reset({
         index: 0,
-        routes: [{ name: "Dashboard" }],
+        routes: [{ name: "MainApp" }],
       });
     } catch (error) {
       console.error("❌ Email login failed:", error);
@@ -100,7 +100,7 @@ const LoginScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
         console.log("🎉 Facebook login successful!");
         navigation.reset({
           index: 0,
-          routes: [{ name: "Dashboard" }],
+          routes: [{ name: "MainApp" }],
         });
       } else {
         console.error("❌ Facebook login failed:", json);
@@ -145,7 +145,7 @@ const LoginScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
       console.log("🎉 Google login successful!");
       navigation.reset({
         index: 0,
-        routes: [{ name: "Dashboard" }],
+        routes: [{ name: "MainApp" }],
       });
     } catch (error) {
       console.error("❌ Google login error:", error);

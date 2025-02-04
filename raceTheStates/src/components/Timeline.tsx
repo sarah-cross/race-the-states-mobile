@@ -6,7 +6,6 @@ interface TimelineComponentProps {
 }
 
 const TimelineComponent: React.FC<TimelineComponentProps> = ({ data }) => {
-  console.log('📌 TimelineComponent received data:', data);
 
   return (
     <Timeline
@@ -16,20 +15,21 @@ const TimelineComponent: React.FC<TimelineComponentProps> = ({ data }) => {
       timeContainerStyle={{ minWidth: 140, alignItems: 'flex-end' }}
       timeStyle={{
         textAlign: 'right',
-        backgroundColor: 'rgba(255, 255, 255, 0.15)',
+        backgroundColor: '#01C7FE',
         color: 'white',
         padding: 5,
         borderRadius: 13,
+        fontWeight: 'bold',
       }}
       titleStyle={{
-        fontSize: 16,  // Keep state name readable
+        fontSize: 18,  // Keep state name readable
         fontWeight: 'bold',
         color: 'white',
         marginBottom: 2, // ✅ Reduce space between title (state) and description
       }}
       descriptionStyle={{
         color: 'gray',
-        fontSize: 14,
+        fontSize: 16,
         marginTop: 2, // ✅ Brings race name closer to state name
       }}
       innerCircle={'dot'}

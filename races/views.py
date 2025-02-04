@@ -12,7 +12,7 @@ from django.utils.encoding import force_bytes
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.conf import settings
-from django.db.models import Count, Avg, Min
+from django.db.models import Count, Avg, Min, Sum
 from django.http import JsonResponse
 
 
@@ -28,7 +28,7 @@ from google.auth.transport.requests import Request
 
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from .models import State, Race, RaceImage
+from .models import State, Race, RaceImage, DISTANCE_TO_MILES
 from .serializers import (
     StateSerializer,
     RaceSerializer,
@@ -148,7 +148,6 @@ class UserProfileView(APIView):
 def dashboard_view(request):
     print("🛠️ Request User:", request.user)
 
-    # Ensure user is authenticated
     if not request.user.is_authenticated:
         return JsonResponse({"error": "User is not authenticated"}, status=401)
 
@@ -157,7 +156,7 @@ def dashboard_view(request):
         Race.objects.filter(user=request.user)
         .select_related('state')
         .order_by('date')
-        .values('state__name', 'state__region', 'name', 'date')
+        .values('state__name', 'state__region', 'name', 'date', 'distance')
     )
 
     races_list = [
@@ -170,9 +169,12 @@ def dashboard_view(request):
         for race in races
     ]
 
+    # Calculate total miles logged
+    total_miles_logged = sum(DISTANCE_TO_MILES.get(race["distance"], 0) for race in races)
+
     # Get all completed states
     completed_states = State.objects.filter(race__user=request.user).distinct().values("name", "region")
-    completed_states_list = list(completed_states)  # Convert QuerySet to a list
+    completed_states_list = list(completed_states)
 
     # Get all states with names and regions
     all_states = list(State.objects.values("name", "region"))
@@ -184,27 +186,42 @@ def dashboard_view(request):
         for region in regions
     }
 
-    # Average Race Times
-    avg_times = (
+    # Get PR race
+    pr_race = (
         Race.objects.filter(user=request.user)
-        .values('state__region')
-        .annotate(avg_time=Avg('time'))
+        .order_by('time')
+        .select_related('state')
+        .values('name', 'state__name', 'state__region', 'state__region_color', 'state__svg_path', 'time', 'date')
+        .first()
     )
-    average_race_times = {entry['state__region']: entry['avg_time'] for entry in avg_times}
 
-    # Construct JSON response with completed states
+    pr_race_data = None
+    if pr_race:
+        pr_race_data = {
+            "race_name": pr_race["name"],
+            "state": pr_race["state__name"],
+            "region": pr_race["state__region"],
+            "region_color": pr_race["state__region_color"],
+            "svg_path": pr_race["state__svg_path"],
+            "time": pr_race["time"],
+            "date": pr_race["date"],
+        }
+
+    # Construct JSON response
     data = {
-        "total_states_completed": len(completed_states_list),  # Send actual length
+        "total_states_completed": len(completed_states_list),
+        "total_miles_logged": round(total_miles_logged, 1),  # Rounded for better display
         "completed_states": completed_states_list, 
         "all_states": all_states,
         "progress_by_region": region_completion,
-        "average_race_times": average_race_times,
         "timeline": races_list,
+        "personal_record": pr_race_data,  
     }
 
-    print("✅ Completed States:", completed_states_list)  # Debugging log
+    print("✅ Total Miles Logged:", total_miles_logged)  # Debugging log
 
     return JsonResponse(data)
+
 
 
 # ---------------------------- #

@@ -13,7 +13,7 @@ interface StateData {
 
 interface USMapProps {
   completedStates: StateData[];
-  allStates: StateData[]; // 🔥 All states with their regions
+  allStates: StateData[];
 }
 
 const regionColors: Record<RegionName, string> = {
@@ -23,22 +23,10 @@ const regionColors: Record<RegionName, string> = {
   Northeast: '#01C7FE',
 };
 
-// ✅ Convert HEX to RGBA for faded colors
-const hexToRGBA = (hex: string, alpha: number = 0.) => {
-  const r = parseInt(hex.substring(1, 3), 16);
-  const g = parseInt(hex.substring(3, 5), 16);
-  const b = parseInt(hex.substring(5, 7), 16);
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-};
-
 const projection = d3.geoAlbersUsa().scale(1300).translate([480, 250]);
 const pathGenerator = d3.geoPath().projection(projection);
 
 const USMap: React.FC<USMapProps> = ({ completedStates = [], allStates = [] }) => {
-  console.log('✅ Completed States:', completedStates);
-  console.log('✅ All States:', allStates);
-
-  // 🔥 Create a lookup table for region by state name (for all states)
   const stateRegionMap: Record<string, RegionName> = {};
   allStates.forEach(state => {
     stateRegionMap[state.name] = state.region;
@@ -48,27 +36,20 @@ const USMap: React.FC<USMapProps> = ({ completedStates = [], allStates = [] }) =
     return usMap.features.map((feature, i) => {
       const pathData = pathGenerator(feature as d3.GeoPermissibleObjects) || '';
       const stateName = feature.properties.NAME;
-
-      // ✅ Find if the state is completed
-      const completedState = completedStates.find(state => state.name === stateName);
-
-      // ✅ Get region from all states
       const region = stateRegionMap[stateName];
 
-      // ✅ Use vibrant color for completed states, faded for uncompleted
-      const fillColor = completedState
-        ? regionColors[completedState.region]  // 🔥 Fully colored for completed
-        : region && regionColors[region]
-          ? 'rgba(255, 255, 255, 0.15)' 
-          : 'rgba(255, 255, 255, 0.15)';  // Default faded white
+      const completedState = completedStates.find(state => state.name === stateName);
+
+      const fillColor = completedState ? regionColors[completedState.region] : 'transparent';
+      const borderColor = region ? regionColors[region] : 'white'; // Region-based outline
 
       return (
         <Path
           key={`path-${i}`}
           d={pathData}
-          fill={fillColor}
-          stroke="white"
-          strokeWidth={1.5}
+          fill={fillColor} // ✅ Transparent unless completed
+          stroke={borderColor} // ✅ Regional color as border
+          strokeWidth={4} // ✅ Inner border thickness
         />
       );
     });
@@ -93,5 +74,4 @@ const styles = StyleSheet.create({
 });
 
 export default USMap;
-
 

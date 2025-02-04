@@ -11,15 +11,18 @@ class Profile(models.Model):
     def __str__(self):
         return self.user.username
 
+
 class State(models.Model):
-    name = models.CharField(max_length=100)  # e.g., "California"
-    abbreviation = models.CharField(max_length=2)  # e.g., "CA"
-    region = models.CharField(max_length=100)  # e.g., "West"
-    subregion = models.CharField(max_length=100, blank=True, null=True)  # e.g., "Pacific Coast"
-    svg_file = models.FileField(upload_to='svgs/', blank=True, null=True)  # Path for SVG files
+    name = models.CharField(max_length=100)
+    abbreviation = models.CharField(max_length=2)
+    region = models.CharField(max_length=100)
+    region_color = models.CharField(max_length=7, blank=True, null=True)
+    subregion = models.CharField(max_length=100, blank=True, null=True)
+    svg_path = models.TextField(blank=True, null=True)  # ✅ Store SVG path directly
 
     def __str__(self):
         return self.name
+
 
 
 class DistanceChoices(models.TextChoices):
@@ -27,6 +30,13 @@ class DistanceChoices(models.TextChoices):
     TEN_K = '10k', '10k'
     HALF_MARATHON = 'half marathon', 'Half Marathon'
     MARATHON = 'marathon', 'Marathon'
+
+DISTANCE_TO_MILES = {
+    DistanceChoices.FIVE_K: 3.1,
+    DistanceChoices.TEN_K: 6.2,
+    DistanceChoices.HALF_MARATHON: 13.1,
+    DistanceChoices.MARATHON: 26.2,
+}
 
 class Race(models.Model):
     name = models.CharField(max_length=255)  # Required
@@ -43,6 +53,10 @@ class Race(models.Model):
         default=DistanceChoices.HALF_MARATHON,
     )
     notes = models.TextField(blank=True, null=True)  # Optional
+
+    def get_miles(self):
+        """Returns the miles equivalent of the race distance."""
+        return DISTANCE_TO_MILES.get(self.distance, 0)  # Defaults to 0 if distance is not set
 
     def __str__(self):
         return f"{self.name} - {self.state.abbreviation}"

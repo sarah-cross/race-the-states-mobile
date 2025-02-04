@@ -7,7 +7,8 @@ import LoginScreen from './src/screens/LoginScreen';
 import RegisterScreen from './src/screens/RegisterScreen';
 import ForgotPasswordScreen from './src/screens/ForgotPasswordScreen';
 import ResetPasswordScreen from './src/screens/ResetPasswordScreen';
-import DashboardScreen from './src/screens/DashboardScreen';
+import AboutScreen from './src/screens/AboutScreen';
+import BottomTabs from './src/components/BottomTabs'; 
 
 export type RootStackParamList = {
   Login: undefined;
@@ -15,6 +16,8 @@ export type RootStackParamList = {
   ForgotPassword: undefined;
   ResetPassword: { token: string };
   Dashboard: undefined;
+  MainApp: undefined;
+  About: undefined;
 };
 
 const linking = {
@@ -92,30 +95,23 @@ const App = () => {
   
     
 
+
   return (
     <UserProvider>
-      <NavigationContainer
-        ref={navigationRef}
-        linking={linking}
-        onStateChange={(state) => {
-          console.log('Navigation State Changed:', state);
-        }}
-        onReady={() => {
-          console.log('Navigation is ready!');
-        }}
-      >
-
-        <Stack.Navigator
-          initialRouteName="Login"
-          screenOptions={{
-            headerShown: false,
-          }}
-        >
+      <NavigationContainer ref={navigationRef} linking={linking}>
+        <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: false }}>
+          {/* Authentication Screens */}
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="Register" component={RegisterScreen} />
           <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
           <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
-          <Stack.Screen name="Dashboard" component={DashboardScreen} />
+
+          {/* Main App with Bottom Navigation */}
+          <Stack.Screen name="MainApp" component={BottomTabs} />
+
+          {/* About Screen - Stack Navigation */}
+          <Stack.Screen name="About" component={AboutScreen} />
+          
         </Stack.Navigator>
       </NavigationContainer>
     </UserProvider>
