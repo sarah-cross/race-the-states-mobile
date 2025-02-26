@@ -304,6 +304,31 @@ class PasswordResetConfirmView(APIView):
         return Response({"message": "Password updated successfully!"}, status=status.HTTP_200_OK)
 
 
+# CHANGE PASSWORD IN APP
+class ChangePasswordView(APIView):
+    permission_classes = [IsAuthenticated]  # ✅ User must be logged in
+
+    def post(self, request):
+        print("Received Authorization Header:", request.headers.get("Authorization"))
+        print("Authenticated User:", request.user)
+        user = request.user  # ✅ Get the logged-in user
+        current_password = request.data.get("current_password")
+        new_password = request.data.get("new_password")
+
+        if not current_password or not new_password:
+            return Response({"error": "Both fields are required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # ✅ Verify current password
+        if not user.check_password(current_password):
+            return Response({"error": "Current password is incorrect."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # ✅ Update to new password
+        user.set_password(new_password)
+        user.save()
+
+        return Response({"message": "Password changed successfully!"}, status=status.HTTP_200_OK)
+
+
 
 # ---------------------------- #
 # GOOGLE AUTH                  #

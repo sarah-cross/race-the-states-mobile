@@ -82,8 +82,10 @@ const LoginScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
       }
 
       console.log("✅ Facebook Access Token:", data.authenticationToken);
+      // will need to setup a new ngrok tunnel each time backend server quits; run backend server, then in separate terminal
+      // run: ngrok http 8000; copy new ngrok url
       const response = await fetch("https://6324-2601-601-0-6ba0-8974-cf9e-bd50-a43e.ngrok-free.app/api/facebook-login/", {
-        method: "POST",
+      method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token: data.authenticationToken }),
       });

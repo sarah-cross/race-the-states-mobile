@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { navigationRef } from "../../App";
+import { navigationRef } from '../../App';
 
 interface User {
   token: string;

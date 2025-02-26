@@ -6,5 +6,5 @@
       "*": ["types/*"]
     }
   },
-  "include": ["src", "types"]
+  "include": ["src", "types", "App.tsx"]
 }

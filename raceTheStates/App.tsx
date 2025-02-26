@@ -10,7 +10,8 @@ import ForgotPasswordScreen from "./src/screens/ForgotPasswordScreen";
 import ResetPasswordScreen from "./src/screens/ResetPasswordScreen";
 import DashboardScreen from "./src/screens/DashboardScreen";
 import AboutScreen from "./src/screens/AboutScreen";
-import BottomTabs from "./src/components/BottomTabs"; 
+import BottomTabs from "./src/navigation/BottomTabs"; 
+
 
 export type RootStackParamList = {
   Login: undefined;
@@ -18,8 +19,9 @@ export type RootStackParamList = {
   ForgotPassword: undefined;
   ResetPassword: { token: string };
   MainApp: undefined;
-  Dashboard: undefined;
-  About: undefined;
+  //Dashboard: undefined;
+  //About: undefined;
+
 };
 
 const linking = {
@@ -95,7 +97,6 @@ const App = () => {
           <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
           <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
           <Stack.Screen name="MainApp" component={BottomTabs} />
-          <Stack.Screen name="About" component={AboutScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </UserProvider>

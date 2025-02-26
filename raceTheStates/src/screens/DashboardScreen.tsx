@@ -2,9 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import LinearGradient from 'react-native-linear-gradient';
-import { useNavigation } from '@react-navigation/native';
+import { CompositeNavigationProp, useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from "@react-navigation/stack";
-import { RootStackParamList } from "../../App";
+import { RootStackParamList } from '../../App';
+import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
+import { BottomTabParamList } from '../navigation/BottomTabs';
 import { FlatList } from 'react-native';
 
 import USMap from '../components/USMap';
@@ -12,7 +14,8 @@ import CircularProgressBar from '../components/CircularProgressBar';
 import { useUser } from '../context/UserContext';
 import TimelineComponent from '../components/Timeline';
 import PRRaceCard from '../components/PRRaceCard';
-import ProfileModal from '../components/ProfileModal';
+import ProfileModal from './ProfileModal';
+import { ProfileStackParamList } from '../navigation/ProfileStack';
 
 const regionKeys = ['West', 'Midwest', 'South', 'Northeast'] as const;
 type RegionName = typeof regionKeys[number];
@@ -36,8 +39,12 @@ const totalStatesByRegion: Record<string, number> = {
 
 
 const Dashboard: React.FC = () => {
-  type NavigationProp = StackNavigationProp<RootStackParamList, "Dashboard">;
-  const navigation = useNavigation<NavigationProp>();  
+  type NavigationProp = CompositeNavigationProp<
+    BottomTabNavigationProp<BottomTabParamList, "Dashboard">,
+    StackNavigationProp<ProfileStackParamList>
+  >;
+
+const navigation = useNavigation<NavigationProp>();  
   const [loading, setLoading] = useState(true);
   const [timelineData, setTimelineData] = useState<any[]>([]);
   const { user } = useUser();
@@ -49,11 +56,6 @@ const Dashboard: React.FC = () => {
     logout(); // Clear user session
     setProfileModalVisible(false); // Close modal after logout
 
-    // Navigate to Login after logout
-    navigation.reset({
-      index: 0,
-      routes: [{ name: "Login" }],
-    });
   };
 
   const [dashboardData, setDashboardData] = useState<{
@@ -149,19 +151,12 @@ const Dashboard: React.FC = () => {
       {/* ✅ Header */}
       <View style={styles.header}>
         <Text style={styles.headerText}>Race the States</Text>
-        <TouchableOpacity onPress={() => setProfileModalVisible(true)}>
+        <TouchableOpacity onPress={() => navigation.navigate("ProfileStack", { screen: "Profile" })}>
           <FontAwesome name="user-circle" size={24} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
 
 
-      <ProfileModal
-        visible={isProfileModalVisible}
-        onClose={() => setProfileModalVisible(false)}
-        onLogout={handleLogout}
-        onNavigateAbout={() => navigation.navigate("About")}
-        onNavigateReset={() => navigation.navigate("About")}
-      />
   
       {/* ✅ Main Content */}
       <View style={{ flex: 1 }}>
