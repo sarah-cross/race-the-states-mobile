@@ -8,6 +8,7 @@ from .views import (
     LoginView,
     #UserProfileView,
     dashboard_view,
+    race_log_view,
     PasswordResetRequestView,
     PasswordResetValidateTokenView,
     PasswordResetConfirmView,
@@ -30,6 +31,7 @@ urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
     path('login/', LoginView.as_view(), name='login'),
     path('dashboard/', dashboard_view, name='dashboard'),
+    path('race-log/', race_log_view, name='race-log'),
     #path('users/profile/', UserProfileView.as_view(), name='user-profile'),
 
     # Password reset views

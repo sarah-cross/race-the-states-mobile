@@ -142,7 +142,7 @@ class UserProfileView(APIView):
         return Response(user_data)
 
 
-# DASHBOARD
+# DASHBOARD VIEW 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def dashboard_view(request):
@@ -218,9 +218,47 @@ def dashboard_view(request):
         "personal_record": pr_race_data,  
     }
 
-    print("✅ Total Miles Logged:", total_miles_logged)  # Debugging log
+    print("Total Miles Logged:", total_miles_logged)  # Debugging log
 
     return JsonResponse(data)
+
+
+# RACE LOG VIEW
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def race_log_view(request): 
+    print("Fetching Race Log for User:", request.user)
+
+    if not request.user.is_authenticated: 
+        return JsonResponse({"error": "User is not authenticated"}, status=401)
+
+    # Get all raes completed by the user, ordered by date (most recent first)
+    races = (
+        Race.objects.filter(user=request.user)
+        .select_related('state')
+        .order_by('-date')
+        .values('state__name', 'city', 'state__region', 'state__region_color', 'state__svg_path', 'name', 'date', 'distance', 'time')
+    )
+
+    # Format race data for frontend display
+    races_list = [
+        {
+            "state": race["state__name"],
+            "city": race["city"],
+            "region": race["state__region"], 
+            "region_color": race["state__region_color"], 
+            "svg_path": race["state__svg_path"], 
+            "race_name": race["name"],
+            "date": race["date"],
+            "time": race["time"],
+            "distance": race["distance"],
+        }
+        for race in races
+    ]
+
+    print("Total Races Found:", len(races_list))
+
+    return JsonResponse({"races": races_list})
 
 
 

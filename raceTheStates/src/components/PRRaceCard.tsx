@@ -36,8 +36,8 @@ const PRRaceCard: React.FC<PRRaceCardProps> = ({ race_name, state, region_color,
             <View>
                 <Text style={styles.raceName}>{race_name}</Text>
                 <Text style={styles.stateText}>{state}</Text>
-                <Text style={styles.time}>{formatRaceTime(time)}</Text>
                 <Text style={styles.date}>{date}</Text>
+                <Text style={styles.time}>{formatRaceTime(time)}</Text>
             </View>
         </View>
     );

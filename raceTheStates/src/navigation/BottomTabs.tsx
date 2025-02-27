@@ -19,7 +19,7 @@ export type BottomTabParamList = {
 
 const Tab = createBottomTabNavigator();
 
-const ProfileButton = () => {
+/* const ProfileButton = () => {
   const navigation = useNavigation<BottomTabNavigationProp<BottomTabParamList>>();
 
   return (
@@ -27,7 +27,7 @@ const ProfileButton = () => {
       <FontAwesome name="user-circle" size={28} color="white" />
     </TouchableOpacity>
   );
-};
+}; */
 
 const BottomTabs = () => {
   return (
@@ -38,6 +38,7 @@ const BottomTabs = () => {
           backgroundColor: "rgba(0, 0, 0, 0.9)",
           borderTopWidth: 0,
           height: 80,
+          justifyContent: "space-evenly",
         },
         tabBarLabelStyle: {
           fontSize: 12,
@@ -45,12 +46,15 @@ const BottomTabs = () => {
           textAlign: "center",
         },
         tabBarItemStyle: {
-          flex: 1,
+          flex: 1, 
+          flexGrow: 1, // ✅ Forces all items to take up equal space
           justifyContent: "center",
           alignItems: "center",
+          padding: 4,
         },
+        
         tabBarActiveTintColor: "#01C7FE",
-        tabBarInactiveTintColor: "gray",
+        tabBarInactiveTintColor: "white",
         tabBarIcon: ({ color }) => {
           let iconName = "question-circle";
 
@@ -77,7 +81,10 @@ const BottomTabs = () => {
       <Tab.Screen
         name="ProfileStack"
         component={ProfileStack}
-        options={{ tabBarButton: () => null }} // ✅ Hides from tab bar
+        options={{ 
+          tabBarButton: () => null, 
+          tabBarItemStyle: { display: "none" } 
+        }} 
       />
     </Tab.Navigator>
   );
