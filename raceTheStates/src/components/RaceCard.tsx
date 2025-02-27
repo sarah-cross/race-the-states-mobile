@@ -21,21 +21,32 @@ const formatRaceTime = (time: string) => {
 const RaceCard: React.FC<RaceCardProps> = ({ race_name, state, city, region_color, time, date, svg_path }) => {
     if (!svg_path) return null;
 
+    const scaleFactors: Record<string, number> = {
+        Alaska: 1.2, // Scale UP Alaska
+        Hawaii: 1.2, // Slightly bigger
+        Utah: 0.8,   // Scale DOWN Utah
+    };
+
+    const scaleFactor = scaleFactors[state] || 1; // Default scale 1 if not listed
+
     const svgXmlData = `
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 800">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 700">
           <path d="${svg_path}" fill="${region_color}" stroke="black" stroke-width="2"/>
       </svg>
   `;
 
     return (
         <View style={styles.card}>
-            {/* ✅ SVG State Icon */}
-            <SvgXml xml={svgXmlData} width={75} height={75} />
+            {/* ✅ Scaled SVG */}
+            <View style={{ width: 80, height: 80, justifyContent: "center", alignItems: "center" }}>
+                <SvgXml xml={svgXmlData} width={75 * scaleFactor} height={75 * scaleFactor} />
+            </View>
+
 
             {/* ✅ Race Details */}
-            <View>
+            <View style={styles.raceDetails}>
                 <Text style={styles.raceName}>{race_name}</Text>
-                
+
                 {/* ✅ City (if available) */}
                 {city && <Text style={styles.cityText}>{city}, {state}</Text>}
 
@@ -49,6 +60,7 @@ const RaceCard: React.FC<RaceCardProps> = ({ race_name, state, city, region_colo
 };
 
 
+
 const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
@@ -57,16 +69,22 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 10,
     marginBottom: 0,
-    margin: 20,
+    margin: 15,
+    height: 100,
   },
   stateSvg: {
-    marginRight: 15,
+    paddingRight: 40,
   },
-  
+  raceDetails: {
+    flex: 1, 
+    justifyContent: 'center', 
+    marginLeft: 20,
+  },
   raceName: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#FFFFFF',
+    marginBottom: 4,
   },
   cityText: {
     fontSize: 14,

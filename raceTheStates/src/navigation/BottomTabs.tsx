@@ -1,6 +1,6 @@
 import React from "react";
 import { BottomTabNavigationProp, createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import FontAwesome from "react-native-vector-icons/FontAwesome5";
+import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import DashboardScreen from "../screens/DashboardScreen";
 import RaceLogScreen from "../screens/RaceLogScreen";
 import FindRacesScreen from "../screens/FindRacesScreen";
@@ -68,7 +68,7 @@ const BottomTabs = () => {
             iconName = "heart";
           }
 
-          return <FontAwesome name={iconName} size={24} color={color} />;
+          return <FontAwesome5 name={iconName} size={24} color={color} />;
         },
       })}
     >
