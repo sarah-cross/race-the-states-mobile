@@ -42,9 +42,9 @@ class Race(models.Model):
     name = models.CharField(max_length=255)  # Required
     date = models.DateField(db_index=True)
     time = models.DurationField()  # Required
-    state = models.ForeignKey('State', on_delete=models.CASCADE, db_index=True)  # Required
+    state = models.ForeignKey('State', on_delete=models.CASCADE, db_index=True, related_name='races')  # Required
     city = models.CharField(max_length=100, blank=True, null=True)  # Optional
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, db_index=True)  # Link to User
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, db_index=True, related_name='races')  # Link to User
     distance = models.CharField(
         max_length=20,
         choices=DistanceChoices.choices,
@@ -63,7 +63,7 @@ class Race(models.Model):
 
     
 class RaceImage(models.Model):
-    race = models.ForeignKey('Race', on_delete=models.CASCADE, related_name='images')
+    race = models.ForeignKey('Race', on_delete=models.CASCADE, related_name='race_images')
     image = models.ImageField(upload_to='race_images/')
     uploaded_at = models.DateTimeField(auto_now_add=True)
 

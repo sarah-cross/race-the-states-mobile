@@ -19,15 +19,6 @@ export type BottomTabParamList = {
 
 const Tab = createBottomTabNavigator();
 
-/* const ProfileButton = () => {
-  const navigation = useNavigation<BottomTabNavigationProp<BottomTabParamList>>();
-
-  return (
-    <TouchableOpacity onPress={() => navigation.navigate("ProfileStack", { screen: "Profile" })}>
-      <FontAwesome name="user-circle" size={28} color="white" />
-    </TouchableOpacity>
-  );
-}; */
 
 const BottomTabs = () => {
   return (

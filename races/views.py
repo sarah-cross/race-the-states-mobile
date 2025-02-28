@@ -14,7 +14,7 @@ from django.utils.decorators import method_decorator
 from django.conf import settings
 from django.db.models import Count, Avg, Min, Sum
 from django.http import JsonResponse
-
+from rest_framework.parsers import MultiPartParser, FormParser
 
 
 import jwt  # Required for Facebook authentication token decoding
@@ -175,7 +175,7 @@ def dashboard_view(request):
     total_miles_logged = sum(DISTANCE_TO_MILES.get(race["distance"], 0) for race in races)
 
     # Get all completed states
-    completed_states = State.objects.filter(race__user=request.user).distinct().values("name", "region")
+    completed_states = State.objects.filter(races__user=request.user).distinct().values("name", "region")
     completed_states_list = list(completed_states)
 
     # Get all states with names and regions
@@ -184,7 +184,7 @@ def dashboard_view(request):
     # Progress by Region
     regions = ['West', 'Midwest', 'South', 'Northeast']
     region_completion = {
-        region: State.objects.filter(race__user=request.user, region=region).distinct().count()
+        region: State.objects.filter(races__user=request.user, region=region).distinct().count()
         for region in regions
     }
 
@@ -267,16 +267,17 @@ def race_log_view(request):
 
 class UserRacesView(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = RaceSerializer  # ✅ Use the same serializer for both GET & POST
+    serializer_class = RaceSerializer  
+    parser_classes = [MultiPartParser, FormParser]  # Allows image uploads
 
     def get_queryset(self):
         return Race.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
-        if serializer.is_valid():
+        try:
             serializer.save(user=self.request.user)
-        else: 
-            print("Serializer errors:", serializer.errors)
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 # ---------------------------- #

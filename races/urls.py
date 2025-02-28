@@ -34,7 +34,6 @@ urlpatterns = [
     path('dashboard/', dashboard_view, name='dashboard'),
     path('race-log/', race_log_view, name='race-log'),
     path('user-races/', UserRacesView.as_view(), name='user-races'),
-    #path('users/profile/', UserProfileView.as_view(), name='user-profile'),
 
     # Password reset views
     path('password-reset/', PasswordResetRequestView.as_view(), name='password_reset_request'),
