@@ -1,6 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status, viewsets
+from rest_framework import status, viewsets, generics
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.contrib.auth import authenticate, get_user_model
 from rest_framework.decorators import permission_classes, api_view
@@ -14,6 +14,7 @@ from django.utils.decorators import method_decorator
 from django.conf import settings
 from django.db.models import Count, Avg, Min, Sum
 from django.http import JsonResponse
+
 
 
 import jwt  # Required for Facebook authentication token decoding
@@ -60,6 +61,7 @@ else:
 class StateViewSet(viewsets.ModelViewSet):
     queryset = State.objects.all()
     serializer_class = StateSerializer
+    permission_classes = [AllowAny]
 
 
 class RaceViewSet(viewsets.ModelViewSet):
@@ -152,7 +154,7 @@ def dashboard_view(request):
         return JsonResponse({"error": "User is not authenticated"}, status=401)
 
     # Get all races completed by the user
-    races = (
+    races = list(
         Race.objects.filter(user=request.user)
         .select_related('state')
         .order_by('date')
@@ -237,29 +239,44 @@ def race_log_view(request):
         Race.objects.filter(user=request.user)
         .select_related('state')
         .order_by('-date')
-        .values('state__name', 'city', 'state__region', 'state__region_color', 'state__svg_path', 'name', 'date', 'distance', 'time')
-    )
+        .only('state__name', 'city', 'state__region', 'state__region_color', 'state__svg_path', 'name', 'date', 'distance', 'time')
+    ) # use only instead of .values??
 
     # Format race data for frontend display
     races_list = [
         {
-            "state": race["state__name"],
-            "city": race["city"],
-            "region": race["state__region"], 
-            "region_color": race["state__region_color"], 
-            "svg_path": race["state__svg_path"], 
-            "race_name": race["name"],
-            "date": race["date"],
-            "time": race["time"],
-            "distance": race["distance"],
+            "state": race.state.name,
+            "city": race.city,
+            "region": race.state.region,
+            "region_color": race.state.region_color,
+            "svg_path": race.state.svg_path,
+            "race_name": race.name,
+            "date": race.date,
+            "time": race.time,
+            "distance": race.distance,
         }
         for race in races
     ]
+
 
     print("Total Races Found:", len(races_list))
 
     return JsonResponse({"races": races_list})
 
+
+
+class UserRacesView(generics.ListCreateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = RaceSerializer  # ✅ Use the same serializer for both GET & POST
+
+    def get_queryset(self):
+        return Race.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        if serializer.is_valid():
+            serializer.save(user=self.request.user)
+        else: 
+            print("Serializer errors:", serializer.errors)
 
 
 # ---------------------------- #

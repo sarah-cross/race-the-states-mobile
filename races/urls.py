@@ -9,6 +9,7 @@ from .views import (
     #UserProfileView,
     dashboard_view,
     race_log_view,
+    UserRacesView,
     PasswordResetRequestView,
     PasswordResetValidateTokenView,
     PasswordResetConfirmView,
@@ -21,7 +22,7 @@ from django.contrib.auth import views as auth_views
 # Set up the router for ViewSets
 router = DefaultRouter()
 router.register(r'states', StateViewSet)
-router.register(r'races', RaceViewSet)
+router.register(r'races', RaceViewSet) # might not need this one.. 
 router.register(r'race-images', RaceImageViewSet)
 
 # Define urlpatterns
@@ -32,6 +33,7 @@ urlpatterns = [
     path('login/', LoginView.as_view(), name='login'),
     path('dashboard/', dashboard_view, name='dashboard'),
     path('race-log/', race_log_view, name='race-log'),
+    path('user-races/', UserRacesView.as_view(), name='user-races'),
     #path('users/profile/', UserProfileView.as_view(), name='user-profile'),
 
     # Password reset views

@@ -40,11 +40,11 @@ DISTANCE_TO_MILES = {
 
 class Race(models.Model):
     name = models.CharField(max_length=255)  # Required
-    date = models.DateField()
+    date = models.DateField(db_index=True)
     time = models.DurationField()  # Required
-    state = models.ForeignKey('State', on_delete=models.CASCADE)  # Required
+    state = models.ForeignKey('State', on_delete=models.CASCADE, db_index=True)  # Required
     city = models.CharField(max_length=100, blank=True, null=True)  # Optional
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)  # Link to User
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE, db_index=True)  # Link to User
     distance = models.CharField(
         max_length=20,
         choices=DistanceChoices.choices,
@@ -56,7 +56,7 @@ class Race(models.Model):
 
     def get_miles(self):
         """Returns the miles equivalent of the race distance."""
-        return DISTANCE_TO_MILES.get(self.distance, 0)  # Defaults to 0 if distance is not set
+        return DISTANCE_TO_MILES.get(self.distance, 0) or None # Defaults to 0 if distance is not set
 
     def __str__(self):
         return f"{self.name} - {self.state.abbreviation}"
