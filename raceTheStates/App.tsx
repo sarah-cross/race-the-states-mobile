@@ -11,6 +11,9 @@ import ResetPasswordScreen from "./src/screens/ResetPasswordScreen";
 import DashboardScreen from "./src/screens/DashboardScreen";
 import AboutScreen from "./src/screens/AboutScreen";
 import BottomTabs from "./src/navigation/BottomTabs"; 
+import { ApplicationProvider } from "@ui-kitten/components"; 
+import * as eva from "@eva-design/eva"; 
+
 
 
 export type RootStackParamList = {
@@ -19,8 +22,6 @@ export type RootStackParamList = {
   ForgotPassword: undefined;
   ResetPassword: { token: string };
   MainApp: undefined;
-  //Dashboard: undefined;
-  //About: undefined;
 
 };
 
@@ -32,8 +33,6 @@ const linking = {
       ForgotPassword: "forgot-password",
       ResetPassword: "reset-password/:uid/:token",
       MainApp: "main",
-      //Dashboard: "dashboard"
-      // or dashboard? 
     },
   },
 };
@@ -89,17 +88,19 @@ const App = () => {
   if (!initialRoute) return null; // Prevent flicker before determining route
 
   return (
-    <UserProvider>
-      <NavigationContainer ref={navigationRef} linking={linking}>
-        <Stack.Navigator initialRouteName={initialRoute} screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="Login" component={LoginScreen} />
-          <Stack.Screen name="Register" component={RegisterScreen} />
-          <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
-          <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
-          <Stack.Screen name="MainApp" component={BottomTabs} />
-        </Stack.Navigator>
-      </NavigationContainer>
-    </UserProvider>
+    <ApplicationProvider {...eva} theme={eva.light}> 
+      <UserProvider>
+        <NavigationContainer ref={navigationRef} linking={linking}>
+          <Stack.Navigator initialRouteName={initialRoute} screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="Login" component={LoginScreen} />
+            <Stack.Screen name="Register" component={RegisterScreen} />
+            <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
+            <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
+            <Stack.Screen name="MainApp" component={BottomTabs} />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </UserProvider>
+    </ApplicationProvider>
   );
 };
 

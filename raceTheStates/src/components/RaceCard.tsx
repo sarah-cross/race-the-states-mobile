@@ -31,7 +31,7 @@ const RaceCard: React.FC<RaceCardProps> = ({ race_name, state, city, region_colo
 
     const svgXmlData = `
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 700">
-          <path d="${svg_path}" fill="${region_color}" stroke="black" stroke-width="2"/>
+          <path d="${svg_path}" fill="${region_color}" stroke="${region_color}" stroke-width="2"/>
       </svg>
   `;
 
@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#222',
+    backgroundColor: '#000000',
     padding: 15,
     borderRadius: 10,
     marginBottom: 0,

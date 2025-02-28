@@ -52,7 +52,7 @@ const ProfileModal = () => {
           onPress={() => navigation.navigate("About")} // ✅ Now correctly recognized
         >
           <Text style={styles.aboutText}>About</Text>
-          <FontAwesome name="chevron-right" size={24} color="#AAAAAA" />
+          <FontAwesome name="chevron-right" size={24} color="#FFFFFF" />
         </TouchableOpacity>
 
         {/* Reset Password Section */}
@@ -61,7 +61,7 @@ const ProfileModal = () => {
           onPress={() => navigation.navigate("ChangePassword")} // ✅ Use navigate instead of replace
         >
           <Text style={styles.aboutText}>Change Password</Text>
-          <FontAwesome name="chevron-right" size={24} color="#AAAAAA" />
+          <FontAwesome name="chevron-right" size={24} color="#FFFFFF" />
         </TouchableOpacity>
 
         {/* Logout Button */}

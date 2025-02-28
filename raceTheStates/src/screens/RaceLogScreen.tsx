@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { useUser } from '../context/UserContext';
 import RaceCard from '../components/RaceCard';
 import { Menu, Divider, Provider } from "react-native-paper";
+import AddRaceModal from './AddRaceModal';
 
 type Race = {
   state: string;
@@ -18,14 +19,21 @@ type Race = {
   distance: string;
 };
 
+type State = {
+  id: number;
+  name: string;
+}
+
 
 const RaceLogScreen: React.FC = () => {
   const [races, setRaces] = useState<Race[]>([]);
+  const [states, setStates] = useState<State[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useUser();
 
   const [sortVisible, setSortVisible] = useState(false);
   const [sortOption, setSortOption] = useState<string | null>(null);
+  const [isAddRaceVisible, setAddRaceVisible] = useState(false); 
 
   const openMenu = () => setSortVisible(true);
   const closeMenu = () => setSortVisible(false);
@@ -52,6 +60,27 @@ const RaceLogScreen: React.FC = () => {
       setLoading(false);
     }
   };
+
+  // Fetch states
+  const fetchStates = async () => {
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/states/");
+      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+      const data = await response.json();
+      
+      if (Array.isArray(data)) {
+        const sortedStates = data.sort((a, b) => a.name.localeCompare(b.name));
+        setStates(sortedStates);
+      }
+    } catch (error) {
+      console.error("Error fetching states:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchRaceLogData();
+    fetchStates(); // ✅ Fetch states on mount
+  }, [user]);
 
   const sortRaces = (type: string) => {
     let sorted = [...races];
@@ -88,30 +117,38 @@ const RaceLogScreen: React.FC = () => {
   return (
     <Provider>
       <LinearGradient colors={["#000000", "#555555"]} style={styles.container}>
-        {/* ✅ Header */}
+        {/* Header */}
         <View style={styles.header}>
           <Text style={styles.headerText}>My Races</Text>
-
-          {/* ✅ Sort Button with Dropdown Menu */}
-          <Menu
-            visible={sortVisible}
-            onDismiss={closeMenu}
-            anchor={
-              <TouchableOpacity onPress={openMenu}>
-                <FontAwesome name="sort" size={24} color="white" />
-              </TouchableOpacity>
-            }
-          >
-            <Menu.Item onPress={() => sortRaces("date-newest")} title="Date (Newest → Oldest)" />
-            <Menu.Item onPress={() => sortRaces("date-oldest")} title="Date (Oldest → Newest)" />
-            <Divider />
-            <Menu.Item onPress={() => sortRaces("time-fastest")} title="Race Time (Fastest → Slowest)" />
-            <Menu.Item onPress={() => sortRaces("time-slowest")} title="Race Time (Slowest → Fastest)" />
-            <Divider />
-            <Menu.Item onPress={() => sortRaces("region")} title="Region (Alphabetically)" />
-          </Menu>
+  
+          {/* Right-side buttons container */}
+          <View style={styles.headerButtons}>
+            {/* Add Race Button */}
+            <TouchableOpacity style={styles.iconButton} onPress={() => setAddRaceVisible(true)}>
+              <FontAwesome name="plus" size={24} color="white" />
+            </TouchableOpacity>
+  
+            {/* Sort Button with Dropdown Menu */}
+            <Menu
+              visible={sortVisible}
+              onDismiss={closeMenu}
+              anchor={(
+                <TouchableOpacity style={styles.iconButton} onPress={openMenu}>
+                  <FontAwesome name="sort" size={24} color="white" />
+                </TouchableOpacity>
+              )}
+            >
+              <Menu.Item onPress={() => sortRaces("date-newest")} title="Date (Newest → Oldest)" />
+              <Menu.Item onPress={() => sortRaces("date-oldest")} title="Date (Oldest → Newest)" />
+              <Divider />
+              <Menu.Item onPress={() => sortRaces("time-fastest")} title="Race Time (Fastest → Slowest)" />
+              <Menu.Item onPress={() => sortRaces("time-slowest")} title="Race Time (Slowest → Fastest)" />
+              <Divider />
+              <Menu.Item onPress={() => sortRaces("region")} title="Region (Alphabetically)" />
+            </Menu>
+          </View>
         </View>
-
+  
         {/* ✅ Race List */}
         <FlatList
           data={races}
@@ -119,10 +156,18 @@ const RaceLogScreen: React.FC = () => {
           contentContainerStyle={{ paddingTop: 120 }}
           renderItem={({ item }) => <RaceCard {...item} time={item.time ?? "N/A"} />}
         />
+  
+        {/* ✅ Add Race Modal */}
+        <AddRaceModal
+          visible={isAddRaceVisible}
+          onClose={() => setAddRaceVisible(false)}
+          onRaceAdded={fetchRaceLogData} // ✅ Refresh races after adding 
+          states={states}
+        />
       </LinearGradient>
     </Provider>
   );
-};
+}  
 
 const styles = StyleSheet.create({
   container: {
@@ -143,11 +188,53 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     backgroundColor: "rgba(0, 0, 0, 0.8)",
   },
+  
+  headerButtons: {
+    flexDirection: "row",  // ✅ Aligns buttons horizontally
+    alignItems: "center",  // ✅ Centers them vertically
+    gap: 4,               // ✅ Adds spacing between icons
+  },
+  
+  iconButton: {
+    padding: 8,          // ✅ Adds some tappable area
+    borderRadius: 8,      // ✅ Optional: makes touch area more defined
+  },
+  
   headerText: {
     color: "#FFFFFF",
     fontSize: 32,
     fontWeight: "bold",
     fontFamily: "Permanent Marker",
+  },
+
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    width: "80%",
+    backgroundColor: "#222",
+    borderRadius: 10,
+    padding: 20,
+    alignItems: "center",
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "white",
+    marginBottom: 10,
+  },
+  closeButton: {
+    marginTop: 10,
+    padding: 10,
+    backgroundColor: "#FFBA24",
+    borderRadius: 5,
+  },
+  closeButtonText: {
+    color: "black",
+    fontWeight: "bold",
   },
 });
 
